@@ -13,7 +13,7 @@ func (a *AuthorComments) Description() string {
 }
 
 // Calculate the data
-func (a *AuthorComments) Calculate(pullRequests github.PullRequests) error {
+func (a *AuthorComments) Calculate(pullRequests []github.PullRequest) error {
 	a.average.reset()
 
 	for _, pr := range pullRequests {
@@ -22,7 +22,7 @@ func (a *AuthorComments) Calculate(pullRequests github.PullRequests) error {
 		}
 
 		count := 0
-		for _, comment := range pr.Comments() {
+		for _, comment := range *pr.Comments {
 			if comment.User.Login != pr.User.Login {
 				count++
 			}

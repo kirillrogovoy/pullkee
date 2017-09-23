@@ -1,15 +1,25 @@
 package github
 
-import "fmt"
+import (
+	"fmt"
+	"net/http"
+	"strconv"
+)
 
 // DiffSize fetches the diff of the particular pull request
-func (a *API) DiffSize(repo string, number int) (int, error) {
-	req := request(fmt.Sprintf("https://api.github.com/repos/%s/pulls/%d", repo, number))
+func (a APIv3) DiffSize(number int) (int, error) {
+	req, _ := http.NewRequest("HEAD", fmt.Sprintf("https://api.github.com/repos/%s/pulls/%d", a.RepoName, number), nil)
 	req.Header.Add("Accept", "application/vnd.github.diff")
-	res, err := a.send(req)
+	res, err := a.HTTPClient.Do(req)
 	if err != nil {
 		return 0, err
 	}
 
-	return len(HTTPBody(res)), nil
+	length := res.Header.Get("Content-Length")
+	if length == "" {
+		return 0, fmt.Errorf("Expected Content-Length in response")
+	}
+
+	lengthInt, _ := strconv.Atoi(length)
+	return lengthInt, nil
 }

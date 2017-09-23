@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/kirillrogovoy/pullk/github"
+	client "github.com/kirillrogovoy/pullk/github/client"
 )
 
 const usage = `Usage:
@@ -16,7 +16,6 @@ const usage = `Usage:
 
 	Flags:
 	--limit - Only use N last pull requests
-	--reset - Reset the local cache and fetch all the data through the Github API again
 
 	Environment variables:
 	GITHUB_CREDS - API credentials in the format "username:personal_access_token"`
@@ -40,22 +39,22 @@ func getFlags() flags {
 	return flags
 }
 
-func getGithubCreds() *github.Credentials {
-	env := os.Getenv("GITHUB_CREDS")
+func getGithubCreds() *client.Credentials {
+	creds := os.Getenv("GITHUB_CREDS")
 
-	if env == "" {
+	if creds == "" {
 		return nil
 	}
 
-	if matches, _ := regexp.MatchString(`^[\w-]+:[\w-]+$`, env); !matches {
+	if matches, _ := regexp.MatchString(`^[\w-]+:[\w-]+$`, creds); !matches {
 		fmt.Printf("Invalid format of the GITHUB_CREDS environment variable!\n\n%s\n", usage)
 		os.Exit(1)
 	}
 
-	creds := strings.Split(env, ":")
-	return &github.Credentials{
-		Username:            creds[0],
-		PersonalAccessToken: creds[1],
+	split := strings.Split(creds, ":")
+	return &client.Credentials{
+		Username:            split[0],
+		PersonalAccessToken: split[1],
 	}
 }
 

@@ -1,47 +1,29 @@
-package page
+package page_test
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
+	"strings"
 	"testing"
 
+	. "github.com/kirillrogovoy/pullk/github/page"
 	"github.com/stretchr/testify/require"
 )
 
-func TestRest(t *testing.T) {
-	t.Run("Returns an error when a subsequent request returns fails", func(t *testing.T) {
-		goodLink := `<https://api.github.com/user/repos?page=3&per_page=100>; rel="next"`
-		input, _ := successfulResponse()
-		input.Header.Add("Link", goodLink)
-
-		res, err := Rest(httpClientMock{func() (*http.Response, error) {
-			return nil, fmt.Errorf("Some weird network error")
-		}}, *input)
-
-		require.Nil(t, res)
-		require.Contains(t, err.Error(), "Some weird network error")
-	})
-
-	t.Run("Returns an empty array when can't parse the first page's Link header", func(t *testing.T) {
-		input, _ := successfulResponse()
-		rest, err := Rest(httpClientMock{successfulResponse}, *input)
-
-		require.Nil(t, err)
-		require.Empty(t, rest)
-	})
-
-	t.Run("Returns the rest correctly", func(t *testing.T) {
+func TestAll(t *testing.T) {
+	t.Run("Works on successful responses", func(t *testing.T) {
 		linkPage := func(n int) string {
 			return fmt.Sprintf("<https://api.github.com/user/repos?page=%d&per_page=100>; rel=\"next\"", n)
 		}
-		input, _ := successfulResponse()
-		input.Header.Add("Link", linkPage(2))
 
 		timesCalled := 0
 		response := func() (*http.Response, error) {
 			defer func() { timesCalled++ }()
+			json := fmt.Sprintf("[{\"keyX\": \"val%d\"}]", timesCalled)
 			res := &http.Response{
 				Header: http.Header{},
+				Body:   ioutil.NopCloser(strings.NewReader(json)),
 			}
 			switch timesCalled {
 			case 0:
@@ -49,77 +31,203 @@ func TestRest(t *testing.T) {
 			case 1:
 				res.Header.Add("Link", linkPage(4))
 			case 2:
+				// nothing
 			default:
 				panic("Should not be called")
 			}
 			return res, nil
 		}
-		rest, err := Rest(httpClientMock{response}, *input)
+
+		actual := &[]SomeStruct{}
+		err := All(httpClientMock{response}, http.Request{}, actual, 99)
+
+		expected := &[]SomeStruct{
+			SomeStruct{"val0"},
+			SomeStruct{"val1"},
+			SomeStruct{"val2"},
+		}
 
 		require.Nil(t, err)
 		require.Equal(t, 3, timesCalled)
-		require.Len(t, rest, 3)
+		require.Equal(t, expected, actual)
 	})
-}
 
-func TestNextURL(t *testing.T) {
-	goodLink := `<https://api.github.com/user/repos?page=3&per_page=100>; rel="next", <https://api.github.com/user/repos?page=50&per_page=100>; rel="last"`
+	t.Run("Limit works", func(t *testing.T) {
+		linkPage := func(n int) string {
+			return fmt.Sprintf("<https://api.github.com/user/repos?page=%d&per_page=100>; rel=\"next\"", n)
+		}
 
-	t.Run("Returns nil if the header doesn't exist", func(t *testing.T) {
-		input, _ := successfulResponse()
-		res, err := nextPage(httpClientMock{successfulResponse}, *input)
+		timesCalled := 0
+		response := func() (*http.Response, error) {
+			defer func() { timesCalled++ }()
+			json := fmt.Sprintf("[{\"keyX\": \"val%d\"}]", timesCalled)
+			res := &http.Response{
+				Header: http.Header{},
+				Body:   ioutil.NopCloser(strings.NewReader(json)),
+			}
+			switch timesCalled {
+			case 0:
+				res.Header.Add("Link", linkPage(3))
+			case 1:
+				res.Header.Add("Link", linkPage(4))
+			case 2:
+				// nothing
+			default:
+				panic("Should not be called")
+			}
+			return res, nil
+		}
 
-		require.Nil(t, res)
+		actual := &[]SomeStruct{}
+		err := All(httpClientMock{response}, http.Request{}, actual, 2)
+
+		expected := &[]SomeStruct{
+			SomeStruct{"val0"},
+			SomeStruct{"val1"},
+		}
+
 		require.Nil(t, err)
+		require.Equal(t, 2, timesCalled)
+		require.Equal(t, expected, actual)
 	})
 
-	t.Run("Returns nil if the header is of a wrong format", func(t *testing.T) {
-		input, _ := successfulResponse()
-		input.Header.Add("Link", "Total rubbish")
-		res, err := nextPage(httpClientMock{successfulResponse}, *input)
+	t.Run("Fails when couldn't fetch the first page", func(t *testing.T) {
+		result := &[]SomeStruct{}
 
-		require.Nil(t, res)
-		require.Nil(t, err)
-	})
-
-	t.Run("Return err if the request has failed", func(t *testing.T) {
-		input, _ := successfulResponse()
-		input.Header.Add("Link", goodLink)
-
-		res, err := nextPage(httpClientMock{func() (*http.Response, error) {
+		err := All(httpClientMock{func() (*http.Response, error) {
 			return nil, fmt.Errorf("Some weird network error")
-		}}, *input)
+		}}, *dummyRequest(), result, 99)
 
-		require.Nil(t, res)
+		require.Equal(t, []SomeStruct{}, *result)
 		require.Contains(t, err.Error(), "Some weird network error")
 	})
 
-	t.Run("Return response if it's successful", func(t *testing.T) {
-		input, _ := successfulResponse()
-		input.Header.Add("Link", goodLink)
+	t.Run("Fails when response body is absent", func(t *testing.T) {
+		result := &[]SomeStruct{}
+		req := dummyRequest()
 
-		res, err := nextPage(httpClientMock{successfulResponse}, *input)
+		err := All(httpClientMock{func() (*http.Response, error) {
+			return &http.Response{
+				Request: req,
+			}, nil
+		}}, *req, result, 99)
+
+		require.Equal(t, []SomeStruct{}, *result)
+		require.Contains(t, err.Error(), "Expected res.Body not to be nil")
+	})
+
+	t.Run("Fails when there was an error reading response body", func(t *testing.T) {
+		result := &[]SomeStruct{}
+		req := dummyRequest()
+
+		err := All(httpClientMock{func() (*http.Response, error) {
+			return &http.Response{
+				Request: req,
+				Body:    ioutil.NopCloser(errorReader{}),
+			}, nil
+		}}, *req, result, 99)
+
+		require.Equal(t, []SomeStruct{}, *result)
+		require.Equal(t, "Some weird reader error", err.Error())
+	})
+
+	t.Run("Fails when couldn't fetch the rest of pages", func(t *testing.T) {
+		goodLink := `<https://api.github.com/user/repos?page=3&per_page=100>; rel="next"`
+
+		timesCalled := 0
+		response := func() (*http.Response, error) {
+			defer func() { timesCalled++ }()
+			switch timesCalled {
+			case 0:
+				return &http.Response{
+					Header: http.Header{
+						"Link": []string{goodLink},
+					},
+					Body: ioutil.NopCloser(strings.NewReader(`[{"keyX": "val1"}]`)),
+				}, nil
+			case 1:
+				return nil, fmt.Errorf("Some weird network error")
+			default:
+				panic("Should not be called")
+			}
+		}
+
+		result := &[]SomeStruct{}
+		err := All(httpClientMock{response}, *dummyRequest(), result, 99)
+
+		require.Equal(t, []SomeStruct{}, *result)
+		require.Contains(t, err.Error(), "Some weird network error")
+	})
+
+	t.Run("Stops fetching when there is no Link header in the response", func(t *testing.T) {
+		result := &[]SomeStruct{}
+		err := All(httpClientMock{func() (*http.Response, error) {
+			return &http.Response{
+				Body: ioutil.NopCloser(strings.NewReader(`[{"keyX": "val1"}]`)),
+			}, nil
+		}}, *dummyRequest(), result, 99)
 
 		require.Nil(t, err)
-		require.Equal(t, "yes", res.Header.Get("Success"))
-	})
-}
-
-func TestLinkURL(t *testing.T) {
-	t.Run("Found when the header has multiple rels", func(t *testing.T) {
-		header := `<https://api.github.com/user/repos?page=3&per_page=100>; rel="next", <https://api.github.com/user/repos?page=50&per_page=100>; rel="last"`
-		expected := "https://api.github.com/user/repos?page=3&per_page=100"
-		actual := extractLinkURL(header, "next")
-
-		require.Equal(t, expected, actual)
+		require.Equal(t, []SomeStruct{SomeStruct{KeyX: "val1"}}, *result)
 	})
 
-	t.Run("Found the header only has one rel", func(t *testing.T) {
-		header := `<https://api.github.com/user/repos?page=3&per_page=100>; rel="next"`
-		expected := "https://api.github.com/user/repos?page=3&per_page=100"
-		actual := extractLinkURL(header, "next")
+	t.Run("Stops fetching when couldn't parse the Link header", func(t *testing.T) {
+		result := &[]SomeStruct{}
+		err := All(httpClientMock{func() (*http.Response, error) {
+			return &http.Response{
+				Header: http.Header{
+					"Link": []string{"Total rubbish"},
+				},
+				Body: ioutil.NopCloser(strings.NewReader(`[{"keyX": "val1"}]`)),
+			}, nil
+		}}, *dummyRequest(), result, 99)
 
-		require.Equal(t, expected, actual)
+		require.Nil(t, err)
+		require.Equal(t, []SomeStruct{SomeStruct{KeyX: "val1"}}, *result)
+	})
+
+	t.Run("Fails when target is not a pointer", func(t *testing.T) {
+		result := []SomeStruct{}
+		err := All(httpClientMock{successfulResponse}, *dummyRequest(), result, 99)
+
+		require.NotNil(t, err)
+	})
+
+	t.Run("Fails when target is not a pointer to a slice", func(t *testing.T) {
+		result := &SomeStruct{}
+		err := All(httpClientMock{successfulResponse}, *dummyRequest(), result, 99)
+
+		require.NotNil(t, err)
+	})
+
+	t.Run("Fails when a subsequent request gets wrong kind of JSON", func(t *testing.T) {
+		goodLink := `<https://api.github.com/user/repos?page=3&per_page=100>; rel="next"`
+
+		timesCalled := 0
+		response := func() (*http.Response, error) {
+			defer func() { timesCalled++ }()
+			switch timesCalled {
+			case 0:
+				return &http.Response{
+					Header: http.Header{
+						"Link": []string{goodLink},
+					},
+					Body: ioutil.NopCloser(strings.NewReader(`[{"keyX": "val1"}]`)),
+				}, nil
+			case 1:
+				return &http.Response{
+					Body: ioutil.NopCloser(strings.NewReader(`"JSON, but not an array"`)),
+				}, nil
+			default:
+				panic("Should not be called")
+			}
+		}
+
+		result := &[]SomeStruct{}
+		err := All(httpClientMock{response}, *dummyRequest(), result, 99)
+
+		require.Equal(t, []SomeStruct{}, *result)
+		require.Contains(t, err.Error(), "cannot unmarshal string into Go value of type []page_test.SomeStruct")
 	})
 }
 
@@ -143,4 +251,14 @@ func successfulResponse() (*http.Response, error) {
 			"Success": []string{"yes"},
 		},
 	}, nil
+}
+
+type SomeStruct struct {
+	KeyX string `json:"keyX"`
+}
+
+type errorReader struct{}
+
+func (e errorReader) Read(p []byte) (int, error) {
+	return 0, fmt.Errorf("Some weird reader error")
 }

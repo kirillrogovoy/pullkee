@@ -11,7 +11,7 @@ func TestAuth(t *testing.T) {
 	t.Run("Auth headers are set, when Credentials are present", func(t *testing.T) {
 		request := dummyRequest()
 
-		client := auth{
+		client := authenticating{
 			HTTPClient: httpClientMock{successfulResponse},
 			Credentials: &Credentials{
 				Username:            "User1",
@@ -32,7 +32,7 @@ func TestAuth(t *testing.T) {
 	t.Run("Still works when Credentials aren't present", func(t *testing.T) {
 		request := dummyRequest()
 
-		client := auth{
+		client := authenticating{
 			HTTPClient: httpClientMock{successfulResponse},
 		}
 

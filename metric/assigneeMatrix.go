@@ -18,7 +18,7 @@ func (a *AssigneeMatrix) Description() string {
 }
 
 // Calculate how often each developer is an assignee
-func (a *AssigneeMatrix) Calculate(pullRequests github.PullRequests) error {
+func (a *AssigneeMatrix) Calculate(pullRequests []github.PullRequest) error {
 	a.counter = map[string]map[string]*counter{}
 	for _, pr := range pullRequests {
 		author := pr.User.Login

@@ -18,7 +18,7 @@ type Log func(message string)
 type Client struct {
 	HTTPClient
 	LastResponse *http.Response
-	*Log
+	Log
 }
 
 // Options is a set of configurable options for Client
@@ -26,7 +26,7 @@ type Options struct {
 	*Credentials
 	RateLimiter *<-chan time.Time
 	MaxRetries  int
-	*Log
+	Log
 }
 
 // Do is HTTPClient.Do
@@ -36,7 +36,7 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 	c.LastResponse = res
 
 	if c.Log != nil {
-		(*c.Log)(fmt.Sprintf(
+		c.Log(fmt.Sprintf(
 			"DONE - %s: %s",
 			req.Method,
 			req.URL.String(),
@@ -59,12 +59,15 @@ func New(httpClient HTTPClient, opts Options) Client {
 	abusePreventing := abusePreventing{
 		HTTPClient: rateLimiting,
 	}
-	auth := auth{
+	auth := authenticating{
 		HTTPClient:  abusePreventing,
 		Credentials: opts.Credentials,
 	}
-	client := Client{
+	errorWrapping := errorWrapping{
 		HTTPClient: auth,
+	}
+	client := Client{
+		HTTPClient: errorWrapping,
 		Log:        opts.Log,
 	}
 

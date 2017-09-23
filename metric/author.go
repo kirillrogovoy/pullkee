@@ -13,7 +13,7 @@ func (a *Author) Description() string {
 }
 
 // Calculate how often each developer is an author
-func (a *Author) Calculate(pullRequests github.PullRequests) error {
+func (a *Author) Calculate(pullRequests []github.PullRequest) error {
 	a.counter = counterByDev{}
 	for _, pr := range pullRequests {
 		author := pr.User.Login

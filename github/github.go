@@ -1,28 +1,28 @@
 package github
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
-	"net/http/httputil"
-	"time"
 
-	"github.com/kirillrogovoy/pullk/util"
+	client "github.com/kirillrogovoy/pullk/github/client"
 )
 
-// Credentials contains user's name and access token to access the Github API
-type Credentials struct {
-	Username            string
-	PersonalAccessToken string
+// API is an interface for a collection of methods to retrieve information from Github API
+type API interface {
+	Get(url string, target interface{}) error
+	Repository() (*Repository, error)
+	ClosedPullRequests(limit int) ([]PullRequest, error)
+	DiffSize(number int) (int, error)
+	Comments(number int) ([]Comment, error)
+	ReviewRequests(number int) ([]User, error)
 }
 
-// API is the main entry point for calling methods
-type API struct {
-	Creds              *Credentials
-	LastHeader         *http.Header
-	RateLimiter        *<-chan time.Time
-	abuseMechnismTimer *time.Timer
+// APIv3 is a specific collection of methods to retrieve information from Github APIv3
+type APIv3 struct {
+	HTTPClient client.HTTPClient
+	RepoName   string
 }
 
 // User is a representation of a Github user (e.g. an author of a Pull Request)
@@ -30,122 +30,24 @@ type User struct {
 	Login string `json:"login"`
 }
 
-// Repo fetches the remote information about a repository
-func (a *API) Repo(repo string) (res *http.Response, err error) {
-	res, err = a.send(request(fmt.Sprintf("https://api.github.com/repos/%s", repo)))
-	return
-}
+// Get makes an HTTP request, checks the response, reads the body and unmarshals it to the `target`
+func (a APIv3) Get(url string, target interface{}) error {
+	// According to the tests of http.Request an error might only occur on an invalid method which is not the case
+	req, _ := http.NewRequest("GET", url, nil)
 
-func (a *API) send(req *http.Request) (*http.Response, error) {
-	client := client()
-
-	if creds := a.Creds; creds != nil {
-		setAuth(req, *creds)
-	}
-
-	if a.abuseMechnismTimer != nil {
-		<-(*a).abuseMechnismTimer.C
-		a.abuseMechnismTimer = nil
-	}
-
-	if a.RateLimiter != nil {
-		<-*a.RateLimiter
-	}
-
-	res, err := sendWithRetry(client, req)
-
+	res, err := a.HTTPClient.Do(req)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	if abuseMechanismTriggered(res) {
-		retryAfter := util.ParseInt(res.Header.Get("Retry-After"))
-		duration := time.Duration(retryAfter) * time.Second
-		a.abuseMechnismTimer = time.NewTimer(duration)
-
-		res, err = sendWithRetry(client, req)
-
-		if err != nil {
-			return nil, err
-		}
+	if res.Body == nil {
+		return fmt.Errorf("Expected res.Body not to be nil. URL: %s", req.URL)
 	}
 
-	a.LastHeader = &res.Header
-
-	log.Printf(
-		"DONE - %s: %s",
-		req.Method,
-		req.URL.String(),
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	if res.StatusCode >= 300 {
-		return nil, composeHTTPError(req, res)
-	}
-
-	return res, err
-}
-
-func sendWithRetry(client *http.Client, req *http.Request) (*http.Response, error) {
-	res, err := client.Do(req)
-
-	retriesMax := 4
-	retriesLeft := retriesMax
-	for err != nil && retriesLeft > 0 {
-		retriesLeft--
-		res, err = client.Do(req)
-	}
-
-	return res, err
-}
-
-func abuseMechanismTriggered(res *http.Response) bool {
-	return res.StatusCode == 403 && res.Header.Get("Retry-After") != ""
-}
-
-func setAuth(req *http.Request, creds Credentials) {
-	req.SetBasicAuth(creds.Username, creds.PersonalAccessToken)
-	req.Header.Add("User-Agent", creds.Username)
-}
-
-func client() *http.Client {
-	return http.DefaultClient
-}
-
-func request(url string) *http.Request {
-	req, err := http.NewRequest("GET", url, nil)
-
-	if err != nil {
-		panic(err)
-	}
-
-	return req
-}
-
-// HTTPBody is a helper to extract the body from a http.Response
-func HTTPBody(res *http.Response) []byte {
 	body, err := ioutil.ReadAll(res.Body)
-
 	if err != nil {
-		panic(err)
-	}
-	res.Body.Close()
-	return body
-}
-
-func composeHTTPError(req *http.Request, res *http.Response) error {
-	dump, err := httputil.DumpResponse(res, true)
-
-	if err != nil {
-		panic(err)
+		return err
 	}
 
-	return fmt.Errorf(
-		"HTTP Request failed.\nURL: %s\n\n%s",
-		req.URL.String(),
-		dump,
-	)
+	return json.Unmarshal(body, target)
 }

@@ -17,7 +17,7 @@ func (a *CommentCharsPerDay) Description() string {
 }
 
 // Calculate the average age of a PR in total and by developer
-func (a *CommentCharsPerDay) Calculate(pullRequests github.PullRequests) error {
+func (a *CommentCharsPerDay) Calculate(pullRequests []github.PullRequest) error {
 	a.average.reset()
 	now := time.Now()
 	oldestCreated := now
@@ -27,7 +27,7 @@ func (a *CommentCharsPerDay) Calculate(pullRequests github.PullRequests) error {
 			oldestCreated = pr.CreatedAt
 		}
 
-		for _, comment := range pr.Comments() {
+		for _, comment := range *pr.Comments {
 			size := len(comment.Body)
 			a.average.add(float64(size), comment.User.Login)
 		}

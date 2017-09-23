@@ -13,7 +13,7 @@ func (a *Age) Description() string {
 }
 
 // Calculate the average age of a PR in total and by developer
-func (a *Age) Calculate(pullRequests github.PullRequests) error {
+func (a *Age) Calculate(pullRequests []github.PullRequest) error {
 	a.average.reset()
 
 	for _, pr := range pullRequests {

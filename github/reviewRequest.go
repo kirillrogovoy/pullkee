@@ -1,21 +1,17 @@
 package github
 
-import (
-	"encoding/json"
-	"fmt"
-)
+import "fmt"
 
-// ReviewRequests fetches the diff of the particular pull request
-func (a *API) ReviewRequests(repo string, number int) ([]User, error) {
-	req := request(fmt.Sprintf("https://api.github.com/repos/%s/pulls/%d/requested_reviewers", repo, number))
-	req.Header.Add("Accept", "application/vnd.github.black-cat-preview+json")
-	res, err := a.send(req)
+// ReviewRequests fetches a list of users which were requested to do a review
+func (a APIv3) ReviewRequests(number int) ([]User, error) {
+	url := fmt.Sprintf("https://api.github.com/repos/%s/pulls/%d/requested_reviewers", a.RepoName, number)
+	// req, _ := http.NewRequest("GET", url, nil)
+	// req.Header.Add("Accept", "application/vnd.github.black-cat-preview+json")
+	users := []User{}
+	err := a.Get(url, &users)
 	if err != nil {
 		return nil, err
 	}
 
-	body := HTTPBody(res)
-	users := []User{}
-	err = json.Unmarshal(body, &users)
-	return users, err
+	return users, nil
 }

@@ -13,7 +13,7 @@ func (a *ReviewRequest) Description() string {
 }
 
 // Calculate the data
-func (a *ReviewRequest) Calculate(pullRequests github.PullRequests) error {
+func (a *ReviewRequest) Calculate(pullRequests []github.PullRequest) error {
 	a.counter = counterByDev{}
 	for _, pr := range pullRequests {
 		for _, requestee := range *pr.ReviewRequests {

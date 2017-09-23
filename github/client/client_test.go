@@ -9,14 +9,11 @@ import (
 
 func TestClient(t *testing.T) {
 	t.Run("Works fine, saves the last response, writes logs", func(t *testing.T) {
-		var lastLog string
-		logMock := Log(func(message string) {
-			lastLog = message
-		})
+		logMock := Log(func(message string) {})
 
 		client := Client{
 			HTTPClient: httpClientMock{successfulResponse},
-			Log:        &logMock,
+			Log:        logMock,
 		}
 
 		res, err := client.Do(dummyRequest())

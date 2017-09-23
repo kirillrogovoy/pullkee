@@ -17,7 +17,7 @@ func (a *DiffSizePerDay) Description() string {
 }
 
 // Calculate the average age of a PR in total and by developer
-func (a *DiffSizePerDay) Calculate(pullRequests github.PullRequests) error {
+func (a *DiffSizePerDay) Calculate(pullRequests []github.PullRequest) error {
 	a.average.reset()
 	now := time.Now()
 	oldestCreated := now

@@ -3,79 +3,99 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/http"
 	"os"
+	"path"
 	"reflect"
+	"strconv"
 	"time"
 
+	"github.com/kirillrogovoy/pullk/cache"
 	"github.com/kirillrogovoy/pullk/github"
+	client "github.com/kirillrogovoy/pullk/github/client"
+	github_util "github.com/kirillrogovoy/pullk/github_util"
 	"github.com/kirillrogovoy/pullk/metric"
-	"github.com/kirillrogovoy/pullk/repository"
-	"github.com/kirillrogovoy/pullk/util"
 )
 
 func main() {
 	flags := getFlags()
-	creds := getGithubCreds()
-	repo := getRepo()
-	api, err := getAPI(creds, repo)
-	if err != nil {
-		reportFetchingError(err)
+
+	client := getHTTPClient(getGithubCreds())
+	api := getAPI(&client, getRepo())
+
+	// check that we can at least successfully fetch repository's meta information
+	if _, err := api.Repository(); err != nil {
+		reportErrorAndExit(err)
 	}
 
-	r := getRepository(api, repo, flags)
+	printRateDetails(client)
 
-	printRateDetails(api)
+	cache := getCache()
+	pulls := getPulls(flags, api, cache)
 
-	if pulls, err := getPulls(r); err == nil {
-		runMetrics(pulls)
-	} else {
-		reportFetchingError(err)
+	runMetrics(pulls)
+}
+
+func getHTTPClient(creds *client.Credentials) client.Client {
+	rateLimiter := time.Tick(time.Millisecond * 75)
+	return client.New(http.DefaultClient, client.Options{
+		Credentials: creds,
+		RateLimiter: &rateLimiter,
+		MaxRetries:  3,
+		Log:         func(msg string) { fmt.Println(msg) },
+	})
+
+}
+
+func getAPI(client client.HTTPClient, repo string) github.APIv3 {
+	api := github.APIv3{
+		RepoName:   repo,
+		HTTPClient: client,
+	}
+
+	return api
+}
+
+func getCache() cache.Cache {
+	return cache.FSCache{
+		CachePath: path.Join(os.TempDir(), "pullk_cache"),
+		FS:        RealFS{},
 	}
 }
 
-func getAPI(creds *github.Credentials, repo string) (*github.API, error) {
-	limiter := time.Tick(time.Millisecond * 75)
-	api := &github.API{
-		Creds:       creds,
-		RateLimiter: &limiter,
-	}
-
-	// checking that we can successfully open the requested repo
-	_, err := api.Repo(repo)
-	return api, err
-}
-
-func getRepository(api *github.API, repo string, flags flags) *repository.Repository {
-	return &repository.Repository{
-		API: api,
-		Settings: repository.Settings{
-			Repo:        repo,
-			Limit:       flags.limit,
-			ResetCaches: flags.reset,
-		},
-	}
-}
-
-func getPulls(r *repository.Repository) (github.PullRequests, error) {
+func getPulls(f flags, a github.API, c cache.Cache) []github.PullRequest {
 	fmt.Println("Getting Pull Request list...")
-	return r.Pulls()
+
+	pulls, err := github_util.Pulls(a, f.limit)
+	if err != nil {
+		reportErrorAndExit(err)
+	}
+
+	if err := github_util.FillDetails(a, c, pulls); err != nil {
+		reportErrorAndExit(err)
+	}
+
+	return pulls
 }
 
-func reportFetchingError(err error) {
-	fmt.Printf("An unexpected error occurred during information fetching\n\n%s\n", err)
+func reportErrorAndExit(err error) {
+	fmt.Printf("An unexpected error occurred:\n\n%s\n", err)
 	os.Exit(1)
 }
 
-func printRateDetails(api *github.API) {
+func printRateDetails(c client.Client) {
+	l := c.LastResponse.Header
+	resetAt, _ := strconv.Atoi(l.Get("X-RateLimit-Reset"))
+
 	fmt.Printf(
 		"Github rate limit details:\nLimit: %s\nRemaining: %s\nReset: %s\n\n",
-		api.LastHeader.Get("X-RateLimit-Limit"),
-		api.LastHeader.Get("X-RateLimit-Remaining"),
-		time.Unix(int64(util.ParseInt(api.LastHeader.Get("X-RateLimit-Reset"))), 0).String(),
+		l.Get("X-RateLimit-Limit"),
+		l.Get("X-RateLimit-Remaining"),
+		time.Unix(int64(resetAt), 0).String(),
 	)
 }
 
-func runMetrics(pullRequests github.PullRequests) {
+func runMetrics(pullRequests []github.PullRequest) {
 	for _, m := range metric.Metrics() {
 		name := reflect.TypeOf(m).Elem().Name()
 		description := m.Description()

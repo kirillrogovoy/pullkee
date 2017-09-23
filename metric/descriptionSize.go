@@ -13,7 +13,7 @@ func (a *DescriptionSize) Description() string {
 }
 
 // Calculate the data
-func (a *DescriptionSize) Calculate(pullRequests github.PullRequests) error {
+func (a *DescriptionSize) Calculate(pullRequests []github.PullRequest) error {
 	a.average.reset()
 
 	for _, pr := range pullRequests {

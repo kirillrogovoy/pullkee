@@ -13,7 +13,7 @@ func (a *Assignee) Description() string {
 }
 
 // Calculate how often each developer is an assignee
-func (a *Assignee) Calculate(pullRequests github.PullRequests) error {
+func (a *Assignee) Calculate(pullRequests []github.PullRequest) error {
 	a.counter = counterByDev{}
 	for _, pr := range pullRequests {
 		for _, assignee := range pr.Assignees {
