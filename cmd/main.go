@@ -1,5 +1,5 @@
-// Package main is the entry point of the app
-package main
+// Package cmd is the entry point of the app
+package cmd
 
 import (
 	"fmt"
@@ -19,7 +19,8 @@ import (
 	"github.com/kirillrogovoy/pullkee/progress"
 )
 
-func main() {
+// Main is the entry function called by the "main" package
+func Main() {
 	flags := getFlags()
 
 	client := getHTTPClient(getGithubCreds())
