@@ -1,10 +1,17 @@
-# pullkee [![Build Status](https://travis-ci.org/kirillrogovoy/pullkee.svg?branch=master)](https://travis-ci.org/kirillrogovoy/pullkee)
-
-A simple Pull Requests analyzer
-
-<img src="https://maxcdn.icons8.com/Android_L/PNG/512/Programming/pull_request-512.png" width="200" alt="Pull request icon">
-
-godoc.org link: https://godoc.org/github.com/kirillrogovoy/pullkee
+<p align="center">
+  <img src="https://maxcdn.icons8.com/Android_L/PNG/512/Programming/pull_request-512.png" width="200" alt="Pull request icon">
+  <h3 align="center">pullkee</h3>
+  <p align="center">A simple Pull Requests analyzer.</p>
+  <p align="center">
+    <a href="https://github.com/kirillrogovoy/pullkee/releases/latest"><img alt="Release" src="https://img.shields.io/github/release/kirillrogovoy/pullkee.svg?style=flat-square"></a>
+    <a href="/LICENSE.md"><img alt="Software License" src="https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square"></a>
+    <a href="https://travis-ci.org/kirillrogovoy/pullkee"><img alt="Travis" src="https://img.shields.io/travis/kirillrogovoy/pullkee.svg?style=flat-square"></a>
+    <a href="https://codecov.io/gh/kirillrogovoy/pullkee"><img alt="Codecov branch" src="https://img.shields.io/codecov/c/github/kirillrogovoy/pullkee/master.svg?style=flat-square"></a>
+    <a href="https://goreportcard.com/report/github.com/kirillrogovoy/pullkee"><img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/kirillrogovoy/pullkee?style=flat-square"></a>
+    <a href="http://godoc.org/github.com/kirillrogovoy/pullkee"><img alt="Go Doc" src="https://img.shields.io/badge/godoc-reference-blue.svg?style=flat-square"></a>
+    <a href="https://github.com/goreleaser"><img alt="Powered By: GoReleaser" src="https://img.shields.io/badge/powered%20by-goreleaser-green.svg?style=flat-square"></a>
+  </p>
+</p>
 
 ## Why?
 
