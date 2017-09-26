@@ -11,7 +11,7 @@ import (
 )
 
 const usage = `Usage:
-	pullk [flags] [repo]
+	pullkee [flags] [repo]
 	repo - Github repository path as "username/reponame"
 
 	Flags:
