@@ -4,30 +4,30 @@ import "github.com/kirillrogovoy/pullk/github"
 
 // Assignee contains the calculated data
 type Assignee struct {
-	counter counterByDev
+	counter counterMap
 }
 
 // Description of the metric
-func (a *Assignee) Description() string {
+func (m *Assignee) Description() string {
 	return "How often one is the assignee?"
 }
 
 // Calculate how often each developer is an assignee
-func (a *Assignee) Calculate(pullRequests []github.PullRequest) error {
-	a.counter = counterByDev{}
+func (m *Assignee) Calculate(pullRequests []github.PullRequest) error {
+	m.counter = counterMap{}
 	for _, pr := range pullRequests {
 		for _, assignee := range pr.Assignees {
 			author := assignee.Login
-			if _, ok := a.counter[author]; !ok {
-				a.counter[author] = &counter{author, 0}
+			if _, ok := m.counter[author]; !ok {
+				m.counter[author] = &counter{author, 0}
 			}
-			a.counter[author].Count++
+			m.counter[author].Count++
 		}
 	}
 	return nil
 }
 
 // Converts the calculated data to a string
-func (a *Assignee) String() string {
-	return a.counter.string()
+func (m *Assignee) String() string {
+	return m.counter.string()
 }

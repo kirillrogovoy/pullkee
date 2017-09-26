@@ -1,4 +1,6 @@
-package github
+// Package client contains an implementation of a HTTP client aware of
+// all the Github rules like rate limiting or authenticating
+package client
 
 import (
 	"fmt"
@@ -6,22 +8,24 @@ import (
 	"time"
 )
 
-// HTTPClient is in interface for a HTTP client which "transform" a http.Request into http.Response (like http.Client)
+// HTTPClient is in interface for a HTTP client which "transforms"
+// a http.Request into http.Response (like http.Client)
 type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
-// Log is a Printf kind of function which is used to report for logging
+// Log is a which is used to report for logging
 type Log func(message string)
 
-// Client is a HTTPClient aware of Github API rules (like rate limiting, http codes, etc.)
+// Client is a top-level HTTPClient that remembers the last
+// response and can log information out during the process
 type Client struct {
 	HTTPClient
 	LastResponse *http.Response
 	Log
 }
 
-// Options is a set of configurable options for Client
+// Options is a set of configurable options to create a whole chain of clients
 type Options struct {
 	*Credentials
 	RateLimiter *<-chan time.Time
@@ -46,7 +50,7 @@ func (c *Client) Do(req *http.Request) (*http.Response, error) {
 	return res, err
 }
 
-// New creates a new instance of Client chaining all the different clients together
+// New creates a new instance of Client chaining all the clients together given Options
 func New(httpClient HTTPClient, opts Options) Client {
 	retrying := retrying{
 		HTTPClient: httpClient,
@@ -73,19 +77,3 @@ func New(httpClient HTTPClient, opts Options) Client {
 
 	return client
 }
-
-/*
- * func composeHTTPError(req *http.Request, res *http.Response) error {
- *     dump, err := httputil.DumpResponse(res, true)
- *
- *     if err != nil {
- *         panic(err)
- *     }
- *
- *     return fmt.Errorf(
- *         "HTTP Request failed.\nURL: %s\n\n%s",
- *         req.URL.String(),
- *         dump,
- *     )
- * }
- */

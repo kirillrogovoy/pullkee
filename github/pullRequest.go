@@ -24,12 +24,12 @@ type PullRequest struct {
 	Comments       *[]Comment
 }
 
-// IsMerged tells if PullRequest was really merged, not closed
+// IsMerged tells if PullRequest was really merged, not just closed
 func (p PullRequest) IsMerged() bool {
 	return p.State == "closed" && !p.MergedAt.IsZero()
 }
 
-// FillDetails makes additional requests to fill details about the PullRequest (such as diff size)
+// FillDetails makes additional requests to fill details about the Pull Request (such as diff size)
 func (p *PullRequest) FillDetails(a API) error {
 	if p.DiffSize == nil {
 		size, err := a.DiffSize(p.Number)
@@ -58,7 +58,7 @@ func (p *PullRequest) FillDetails(a API) error {
 	return nil
 }
 
-// ClosedPullRequests fetches a list of closed Pull Requests
+// ClosedPullRequests fetches a list of closed Pull Requests with a `limit`
 func (a APIv3) ClosedPullRequests(limit int) ([]PullRequest, error) {
 	perPage := 100
 	url := fmt.Sprintf(
@@ -68,18 +68,18 @@ func (a APIv3) ClosedPullRequests(limit int) ([]PullRequest, error) {
 	)
 	req, _ := http.NewRequest("GET", url, nil)
 
-	prs := &[]PullRequest{}
+	prs := []PullRequest{}
 	pageLimit := int(math.Ceil(float64(limit) / float64(perPage)))
 	if limit <= 0 {
 		pageLimit = int(math.Inf(1))
 	}
-	if err := page.All(a.HTTPClient, *req, prs, pageLimit); err != nil {
+	if err := page.All(a.HTTPClient, *req, &prs, pageLimit); err != nil {
 		return nil, err
 	}
 
-	len := len(*prs)
+	len := len(prs)
 	if limit > len || limit == 0 {
 		limit = len
 	}
-	return (*prs)[:limit], nil
+	return prs[:limit], nil
 }

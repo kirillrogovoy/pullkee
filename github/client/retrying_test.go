@@ -1,4 +1,4 @@
-package github
+package client
 
 import (
 	"fmt"
@@ -38,7 +38,7 @@ func TestRetrying(t *testing.T) {
 		require.Equal(t, 3, timesCalled)
 	})
 
-	t.Run("It gives up retrying after some number of tries", func(t *testing.T) {
+	t.Run("It gives up retrying after the specified number of tries", func(t *testing.T) {
 		timesCalled := 0
 
 		response := func() (*http.Response, error) {

@@ -1,4 +1,4 @@
-package github
+package client
 
 import (
 	"fmt"
@@ -101,7 +101,7 @@ func TestAbusePreventing(t *testing.T) {
 		require.Equal(t, "yes", res.Header.Get("Success"))
 	})
 
-	t.Run("Works when there is an error outright", func(t *testing.T) {
+	t.Run("Fails right away if there was an error", func(t *testing.T) {
 		client := abusePreventing{
 			HTTPClient: httpClientMock{func() (*http.Response, error) {
 				return nil, fmt.Errorf("Some weird network error")

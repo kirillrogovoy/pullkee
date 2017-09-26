@@ -45,7 +45,7 @@ func TestWrite(t *testing.T) {
 			FS:        &m,
 			CachePath: "/tmp/",
 		}
-		err := c.Set("key1", func() {}) // functions are unmarshable in Go
+		err := c.Set("key1", func() {}) // functions are unmarshable
 
 		log.Println(err)
 		require.EqualError(t, err, "json: unsupported type: func()")

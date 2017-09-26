@@ -13,34 +13,34 @@ type AssigneeMatrix struct {
 }
 
 // Description of the metric
-func (a *AssigneeMatrix) Description() string {
+func (m *AssigneeMatrix) Description() string {
 	return "How often does one developer pick another as an assignee?"
 }
 
 // Calculate how often each developer is an assignee
-func (a *AssigneeMatrix) Calculate(pullRequests []github.PullRequest) error {
-	a.counter = map[string]map[string]*counter{}
+func (m *AssigneeMatrix) Calculate(pullRequests []github.PullRequest) error {
+	m.counter = map[string]map[string]*counter{}
 	for _, pr := range pullRequests {
 		author := pr.User.Login
-		if _, ok := a.counter[author]; !ok {
-			a.counter[author] = map[string]*counter{}
+		if _, ok := m.counter[author]; !ok {
+			m.counter[author] = map[string]*counter{}
 		}
 		for _, assignee := range pr.Assignees {
 			name := assignee.Login
-			if _, ok := a.counter[author][name]; !ok {
-				a.counter[author][name] = &counter{name, 0}
+			if _, ok := m.counter[author][name]; !ok {
+				m.counter[author][name] = &counter{name, 0}
 			}
-			a.counter[author][name].Count++
+			m.counter[author][name].Count++
 		}
 	}
 	return nil
 }
 
 // Converts the calculated data to a string
-func (a *AssigneeMatrix) String() string {
+func (m *AssigneeMatrix) String() string {
 	keys := []string{}
 
-	for key := range a.counter {
+	for key := range m.counter {
 		keys = append(keys, key)
 	}
 
@@ -48,7 +48,7 @@ func (a *AssigneeMatrix) String() string {
 
 	result := ""
 	for _, key := range keys {
-		author := a.counter[key]
+		author := m.counter[key]
 		result += fmt.Sprintf("Author %s:\n", key)
 
 		var cs counters

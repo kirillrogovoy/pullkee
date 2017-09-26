@@ -4,28 +4,28 @@ import "github.com/kirillrogovoy/pullk/github"
 
 // Author contains the calculated data
 type Author struct {
-	counter counterByDev
+	counter counterMap
 }
 
 // Description of the metric
-func (a *Author) Description() string {
+func (m *Author) Description() string {
 	return "How many PRs did one create?"
 }
 
 // Calculate how often each developer is an author
-func (a *Author) Calculate(pullRequests []github.PullRequest) error {
-	a.counter = counterByDev{}
+func (m *Author) Calculate(pullRequests []github.PullRequest) error {
+	m.counter = counterMap{}
 	for _, pr := range pullRequests {
 		author := pr.User.Login
-		if _, ok := a.counter[author]; !ok {
-			a.counter[author] = &counter{author, 0}
+		if _, ok := m.counter[author]; !ok {
+			m.counter[author] = &counter{author, 0}
 		}
-		a.counter[author].Count++
+		m.counter[author].Count++
 	}
 	return nil
 }
 
 // Converts the calculated data to a string
-func (a *Author) String() string {
-	return a.counter.string()
+func (m *Author) String() string {
+	return m.counter.string()
 }

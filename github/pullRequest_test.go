@@ -80,7 +80,7 @@ func TestIsMerged(t *testing.T) {
 }
 
 func TestFillDetails(t *testing.T) {
-	t.Run("Happy path", func(t *testing.T) {
+	t.Run("Works when the requests succeed", func(t *testing.T) {
 		pr := PullRequest{
 			Number: 11,
 		}

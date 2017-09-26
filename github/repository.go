@@ -7,7 +7,7 @@ type Repository struct {
 	FullName string `json:"full_name"`
 }
 
-// Repository fetches the remote repository data using the provided client
+// Repository fetches the remote repository data
 func (a APIv3) Repository() (*Repository, error) {
 	repo := &Repository{}
 

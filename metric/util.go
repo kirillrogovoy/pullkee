@@ -16,11 +16,11 @@ func (a average) Calculate() float64 {
 	return a.Sum / float64(a.Count)
 }
 
-// averageByDev is a map which contains an average value for each dev
-type averageByDev map[string]*average
+// averageMap is a map which contains an average value for each dev
+type averageMap map[string]*average
 
 // toList converts the map to a sortable list of AverageItem
-func (a *averageByDev) toList() averageList {
+func (a *averageMap) toList() averageList {
 	var d averageList
 	for name, average := range *a {
 		d = append(d, averageItem{name, average.Calculate()})
@@ -28,11 +28,11 @@ func (a *averageByDev) toList() averageList {
 	return d
 }
 
-func (a *averageByDev) reset() {
-	(*a) = averageByDev{}
+func (a *averageMap) reset() {
+	(*a) = averageMap{}
 }
 
-func (a *averageByDev) add(value float64, dev string) {
+func (a *averageMap) add(value float64, dev string) {
 	if _, ok := (*a)[dev]; !ok {
 		(*a)[dev] = &average{}
 	}
@@ -41,13 +41,13 @@ func (a *averageByDev) add(value float64, dev string) {
 	av.Count++
 }
 
-func (a *averageByDev) setCount(i int) {
+func (a *averageMap) setCount(i int) {
 	for key := range *a {
 		(*a)[key].Count = i
 	}
 }
 
-func (a *averageByDev) string(unit string) string {
+func (a *averageMap) string(unit string) string {
 	d := a.toList()
 
 	averageTotal := 0.0
@@ -86,25 +86,27 @@ func (a averageList) Less(x, y int) bool {
 	return a[x].Value < a[y].Value
 }
 
-type counter struct {
-	Name  string
-	Count int
-}
-type counters []counter
+func (a averageList) string(unit string) string {
+	averageTotal := 0.0
+	for _, dev := range a {
+		averageTotal += dev.Value
+	}
 
-func (a counters) Len() int {
-	return len(a)
-}
-func (a counters) Swap(x, y int) {
-	a[x], a[y] = a[y], a[x]
-}
-func (a counters) Less(x, y int) bool {
-	return a[x].Count < a[y].Count
+	result := ""
+	result += fmt.Sprintf("Total average: %.2f %s\n", averageTotal/float64(len(a)), unit)
+
+	sort.Sort(sort.Reverse(a))
+
+	for _, dev := range a {
+		result += fmt.Sprintf("Average for %s: %.2f %s\n", dev.Name, dev.Value, unit)
+	}
+
+	return result
 }
 
-type counterByDev map[string]*counter
+type counterMap map[string]*counter
 
-func (c counterByDev) string() string {
+func (c counterMap) string() string {
 	var cs counters
 
 	for _, i := range c {
@@ -119,4 +121,20 @@ func (c counterByDev) string() string {
 	}
 
 	return result
+}
+
+type counter struct {
+	Name  string
+	Count int
+}
+type counters []counter
+
+func (a counters) Len() int {
+	return len(a)
+}
+func (a counters) Swap(x, y int) {
+	a[x], a[y] = a[y], a[x]
+}
+func (a counters) Less(x, y int) bool {
+	return a[x].Count < a[y].Count
 }

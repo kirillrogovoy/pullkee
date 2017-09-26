@@ -94,20 +94,6 @@ func (h httpClientMock) Do(request *http.Request) (*http.Response, error) {
 	return h.response()
 }
 
-func dummyRequest() *http.Request {
-	req, _ := http.NewRequest("GET", "http://example.com/url1", nil)
-	return req
-}
-
-func successfulResponse() (*http.Response, error) {
-	return &http.Response{
-		StatusCode: 200,
-		Header: http.Header{
-			"Success": []string{"yes"},
-		},
-	}, nil
-}
-
 type errorReader struct{}
 
 func (e errorReader) Read(p []byte) (int, error) {

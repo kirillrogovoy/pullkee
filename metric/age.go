@@ -4,17 +4,18 @@ import "github.com/kirillrogovoy/pullk/github"
 
 // Age contains the calculated data
 type Age struct {
-	average averageByDev
+	average averageList
 }
 
 // Description of the metric
-func (a *Age) Description() string {
+func (m *Age) Description() string {
 	return "What is the average age of the PR for the particular author?"
 }
 
 // Calculate the average age of a PR in total and by developer
-func (a *Age) Calculate(pullRequests []github.PullRequest) error {
-	a.average.reset()
+func (m *Age) Calculate(pullRequests []github.PullRequest) error {
+	a := averageMap{}
+	a.reset()
 
 	for _, pr := range pullRequests {
 		if !pr.IsMerged() {
@@ -22,13 +23,14 @@ func (a *Age) Calculate(pullRequests []github.PullRequest) error {
 		}
 
 		delta := pr.MergedAt.Sub(pr.CreatedAt).Hours() / 24
-		a.average.add(delta, pr.User.Login)
+		a.add(delta, pr.User.Login)
 	}
 
+	m.average = a.toList()
 	return nil
 }
 
 // Converts the calculated data to a string
-func (a *Age) String() string {
-	return a.average.string("days")
+func (m *Age) String() string {
+	return m.average.string("days")
 }

@@ -8,17 +8,18 @@ import (
 
 // DiffSizePerDay contains the calculated data
 type DiffSizePerDay struct {
-	average averageByDev
+	average averageList
 }
 
 // Description of the metric
-func (a *DiffSizePerDay) Description() string {
+func (m *DiffSizePerDay) Description() string {
 	return "How many bytes/day of diffs does one generate?"
 }
 
 // Calculate the average age of a PR in total and by developer
-func (a *DiffSizePerDay) Calculate(pullRequests []github.PullRequest) error {
-	a.average.reset()
+func (m *DiffSizePerDay) Calculate(pullRequests []github.PullRequest) error {
+	a := averageMap{}
+	a.reset()
 	now := time.Now()
 	oldestCreated := now
 
@@ -32,16 +33,17 @@ func (a *DiffSizePerDay) Calculate(pullRequests []github.PullRequest) error {
 		}
 
 		size := *(pr.DiffSize)
-		a.average.add(float64(size), pr.User.Login)
+		a.add(float64(size), pr.User.Login)
 	}
 
 	daysPassed := int(now.Sub(oldestCreated).Hours() / 24)
-	a.average.setCount(daysPassed)
+	a.setCount(daysPassed)
 
+	m.average = a.toList()
 	return nil
 }
 
 // Converts the calculated data to a string
-func (a *DiffSizePerDay) String() string {
-	return a.average.string("bytes/day")
+func (m *DiffSizePerDay) String() string {
+	return m.average.string("bytes/day")
 }

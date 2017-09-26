@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-// DiffSize fetches the diff of the particular pull request
+// DiffSize fetches the size of the diff of the particular Pull Request given `number`
 func (a APIv3) DiffSize(number int) (int, error) {
 	req, _ := http.NewRequest("HEAD", fmt.Sprintf("https://api.github.com/repos/%s/pulls/%d", a.RepoName, number), nil)
 	req.Header.Add("Accept", "application/vnd.github.diff")

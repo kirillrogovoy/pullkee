@@ -8,17 +8,18 @@ import (
 
 // CommentCharsPerDay contains the calculated data
 type CommentCharsPerDay struct {
-	average averageByDev
+	average averageList
 }
 
 // Description of the metric
-func (a *CommentCharsPerDay) Description() string {
+func (m *CommentCharsPerDay) Description() string {
 	return "How many chars/day of comments does one generate?"
 }
 
 // Calculate the average age of a PR in total and by developer
-func (a *CommentCharsPerDay) Calculate(pullRequests []github.PullRequest) error {
-	a.average.reset()
+func (m *CommentCharsPerDay) Calculate(pullRequests []github.PullRequest) error {
+	a := averageMap{}
+	a.reset()
 	now := time.Now()
 	oldestCreated := now
 
@@ -29,17 +30,18 @@ func (a *CommentCharsPerDay) Calculate(pullRequests []github.PullRequest) error 
 
 		for _, comment := range *pr.Comments {
 			size := len(comment.Body)
-			a.average.add(float64(size), comment.User.Login)
+			a.add(float64(size), comment.User.Login)
 		}
 	}
 
 	daysPassed := int(now.Sub(oldestCreated).Hours() / 24)
-	a.average.setCount(daysPassed)
+	a.setCount(daysPassed)
 
+	m.average = a.toList()
 	return nil
 }
 
 // Converts the calculated data to a string
-func (a *CommentCharsPerDay) String() string {
-	return a.average.string("chars/day")
+func (m *CommentCharsPerDay) String() string {
+	return m.average.string("chars/day")
 }

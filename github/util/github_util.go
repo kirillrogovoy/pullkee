@@ -1,4 +1,5 @@
-package repository
+// Package util is a high-level API for Github
+package util
 
 import (
 	"fmt"
@@ -13,9 +14,15 @@ func Pulls(a github.API, limit int) ([]github.PullRequest, error) {
 	return a.ClosedPullRequests(limit)
 }
 
-// FillDetails calls .FillDetails for each PR in prs in parallel
-func FillDetails(a github.API, c cache.Cache, prs []github.PullRequest) error {
-	ch := make(chan error)
+// FillDetails calls .FillDetails for each PR in prs in parallel.
+// It returns a channel which will never be closed, so the caller
+// should expect len(prs) values from it
+func FillDetails(
+	a github.API,
+	c cache.Cache,
+	prs []github.PullRequest,
+) chan error {
+	ch := make(chan error, len(prs))
 
 	for i, p := range prs {
 		go (func(i int, p github.PullRequest) {
@@ -44,13 +51,7 @@ func FillDetails(a github.API, c cache.Cache, prs []github.PullRequest) error {
 		})(i, p)
 	}
 
-	var err error
-
-	for range prs {
-		err = <-ch
-	}
-
-	return err
+	return ch
 }
 
 func reportFsError(err error) {

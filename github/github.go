@@ -1,3 +1,4 @@
+// Package github provides low-level tools to retrieve information from the Github API
 package github
 
 import (
@@ -6,7 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	client "github.com/kirillrogovoy/pullk/github/client"
+	"github.com/kirillrogovoy/pullk/github/client"
 )
 
 // API is an interface for a collection of methods to retrieve information from Github API
@@ -19,7 +20,7 @@ type API interface {
 	ReviewRequests(number int) ([]User, error)
 }
 
-// APIv3 is a specific collection of methods to retrieve information from Github APIv3
+// APIv3 is an implementation of API which works with Github REST API (v3)
 type APIv3 struct {
 	HTTPClient client.HTTPClient
 	RepoName   string

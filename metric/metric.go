@@ -1,3 +1,5 @@
+// Package metric contains all the metrics that analyze Pull Requests in
+// different ways.
 package metric
 
 import "github.com/kirillrogovoy/pullk/github"

@@ -1,4 +1,4 @@
-package repository
+package util
 
 import (
 	"fmt"
@@ -17,7 +17,7 @@ var pullsFromCache = []github.PullRequest{github.PullRequest{
 }}
 
 func TestPulls(t *testing.T) {
-	t.Run("Happy path", func(t *testing.T) {
+	t.Run("Works when the requests are successful", func(t *testing.T) {
 		a := apiMock{}
 
 		pulls, err := Pulls(a, 0)
@@ -38,7 +38,7 @@ func TestPulls(t *testing.T) {
 }
 
 func TestFillDetails(t *testing.T) {
-	t.Run("Happy path", func(t *testing.T) {
+	t.Run("Works when the requests are successful", func(t *testing.T) {
 		prs := []github.PullRequest{
 			github.PullRequest{Number: 1},
 			github.PullRequest{Number: 2},
@@ -49,7 +49,14 @@ func TestFillDetails(t *testing.T) {
 		a := apiMock{}
 		c := newCacheMock()
 
-		err := FillDetails(a, c, prs)
+		var err error
+		ch := FillDetails(a, c, prs)
+		for range prs {
+			e := <-ch
+			if e != nil {
+				err = e
+			}
+		}
 
 		require.Nil(t, err)
 		require.Len(t, prs, 4)
@@ -72,7 +79,14 @@ func TestFillDetails(t *testing.T) {
 		c := newCacheMock()
 		c.getErr = fmt.Errorf("Nasty cache error")
 
-		err := FillDetails(a, c, prs)
+		var err error
+		ch := FillDetails(a, c, prs)
+		for range prs {
+			e := <-ch
+			if e != nil {
+				err = e
+			}
+		}
 
 		require.Nil(t, err)
 		require.Len(t, prs, 1)
@@ -89,7 +103,14 @@ func TestFillDetails(t *testing.T) {
 		c := newCacheMock()
 		c.setErr = fmt.Errorf("Nasty cache error")
 
-		err := FillDetails(a, c, prs)
+		var err error
+		ch := FillDetails(a, c, prs)
+		for range prs {
+			e := <-ch
+			if e != nil {
+				err = e
+			}
+		}
 
 		require.Nil(t, err)
 		require.Len(t, prs, 1)
@@ -107,7 +128,15 @@ func TestFillDetails(t *testing.T) {
 		}
 
 		c := newCacheMock()
-		err := FillDetails(a, c, prs)
+
+		var err error
+		ch := FillDetails(a, c, prs)
+		for range prs {
+			e := <-ch
+			if e != nil {
+				err = e
+			}
+		}
 
 		require.EqualError(t, err, "Fetching error")
 	})

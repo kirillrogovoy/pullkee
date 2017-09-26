@@ -1,4 +1,4 @@
-package github
+package client
 
 import (
 	"net/http"
@@ -8,7 +8,7 @@ import (
 )
 
 func TestErrorWrapping(t *testing.T) {
-	t.Run("Auth headers are set, when Credentials are present", func(t *testing.T) {
+	t.Run("Successfully turns a 404 into an error", func(t *testing.T) {
 		request := dummyRequest()
 
 		client := errorWrapping{

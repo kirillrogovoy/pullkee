@@ -1,8 +1,8 @@
-package github
+package client
 
 import "net/http"
 
-// Credentials contains user's name and access token to access the Github API
+// Credentials struct contains user's name and access token to access the Github API
 type Credentials struct {
 	Username            string
 	PersonalAccessToken string

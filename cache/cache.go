@@ -1,3 +1,4 @@
+// Package cache provides an abstraction for data caching
 package cache
 
 import (
@@ -23,7 +24,7 @@ type FS interface {
 	ReadFile(path string) ([]byte, error)
 }
 
-// FSCache is a set of methods to write to and read from the cache, transforming JSON in the process
+// FSCache is an implementation of file-system cache using the FS interface
 type FSCache struct {
 	CachePath string
 	FS        FS
@@ -44,7 +45,7 @@ func (c FSCache) Set(key string, x interface{}) error {
 	return c.FS.WriteFile(c.filePath(key), jsoned, 0644)
 }
 
-// Get gets the contents of a file using `key` (if exists) and Unmarshals it to the struct `x`
+// Get gets the contents of the file (if exists) using `key` and Unmarshals it to the struct `x`
 func (c FSCache) Get(key string, x interface{}) (bool, error) {
 	data, err := c.FS.ReadFile(c.filePath(key))
 	if err != nil {

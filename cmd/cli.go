@@ -7,7 +7,7 @@ import (
 	"regexp"
 	"strings"
 
-	client "github.com/kirillrogovoy/pullk/github/client"
+	"github.com/kirillrogovoy/pullk/github/client"
 )
 
 const usage = `Usage:

@@ -4,30 +4,30 @@ import "github.com/kirillrogovoy/pullk/github"
 
 // ReviewRequest contains the calculated data
 type ReviewRequest struct {
-	counter counterByDev
+	counter counterMap
 }
 
 // Description of the metric
-func (a *ReviewRequest) Description() string {
+func (m *ReviewRequest) Description() string {
 	return "How often one is requested for a review?"
 }
 
 // Calculate the data
-func (a *ReviewRequest) Calculate(pullRequests []github.PullRequest) error {
-	a.counter = counterByDev{}
+func (m *ReviewRequest) Calculate(pullRequests []github.PullRequest) error {
+	m.counter = counterMap{}
 	for _, pr := range pullRequests {
 		for _, requestee := range *pr.ReviewRequests {
 			author := requestee.Login
-			if _, ok := a.counter[author]; !ok {
-				a.counter[author] = &counter{author, 0}
+			if _, ok := m.counter[author]; !ok {
+				m.counter[author] = &counter{author, 0}
 			}
-			a.counter[author].Count++
+			m.counter[author].Count++
 		}
 	}
 	return nil
 }
 
 // Converts the calculated data to a string
-func (a *ReviewRequest) String() string {
-	return a.counter.string()
+func (m *ReviewRequest) String() string {
+	return m.counter.string()
 }

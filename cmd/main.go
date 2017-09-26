@@ -1,3 +1,4 @@
+// Package main is the entry point of the app
 package main
 
 import (
@@ -12,9 +13,10 @@ import (
 
 	"github.com/kirillrogovoy/pullk/cache"
 	"github.com/kirillrogovoy/pullk/github"
-	client "github.com/kirillrogovoy/pullk/github/client"
-	github_util "github.com/kirillrogovoy/pullk/github_util"
+	"github.com/kirillrogovoy/pullk/github/client"
+	"github.com/kirillrogovoy/pullk/github/util"
 	"github.com/kirillrogovoy/pullk/metric"
+	"github.com/kirillrogovoy/pullk/progress"
 )
 
 func main() {
@@ -42,18 +44,14 @@ func getHTTPClient(creds *client.Credentials) client.Client {
 		Credentials: creds,
 		RateLimiter: &rateLimiter,
 		MaxRetries:  3,
-		Log:         func(msg string) { fmt.Println(msg) },
 	})
-
 }
 
 func getAPI(client client.HTTPClient, repo string) github.APIv3 {
-	api := github.APIv3{
+	return github.APIv3{
 		RepoName:   repo,
 		HTTPClient: client,
 	}
-
-	return api
 }
 
 func getCache() cache.Cache {
@@ -66,14 +64,34 @@ func getCache() cache.Cache {
 func getPulls(f flags, a github.API, c cache.Cache) []github.PullRequest {
 	fmt.Println("Getting Pull Request list...")
 
-	pulls, err := github_util.Pulls(a, f.limit)
+	pulls, err := util.Pulls(a, f.limit)
 	if err != nil {
 		reportErrorAndExit(err)
 	}
 
-	if err := github_util.FillDetails(a, c, pulls); err != nil {
-		reportErrorAndExit(err)
+	fmt.Println("Attaching details...")
+
+	bar := progress.Bar{
+		Len: 50,
+		OnChange: func(v string) {
+			fmt.Printf("\r%s", v)
+		},
 	}
+	bar.Set(0)
+
+	ch := util.FillDetails(
+		a,
+		c,
+		pulls,
+	)
+
+	for i := range pulls {
+		if err := <-ch; err != nil {
+			reportErrorAndExit(err)
+		}
+		bar.Set(float64(i+1) / float64(len(pulls)))
+	}
+	fmt.Print("\n\n")
 
 	return pulls
 }

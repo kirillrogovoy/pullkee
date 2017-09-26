@@ -1,4 +1,4 @@
-// Package page knows how to fetch resources which are paginated by Github
+// Package page provides an utility to fetch paginated resources
 package page
 
 import (
@@ -11,10 +11,10 @@ import (
 	"runtime"
 	"strings"
 
-	client "github.com/kirillrogovoy/pullk/github/client"
+	"github.com/kirillrogovoy/pullk/github/client"
 )
 
-// All fetches multiple pages giving only a request for the first one and unmarshals them into `target`.
+// All fetches multiple pages given only a request for the first one and unmarshals them into `target`.
 // JSON of each response must be an array and `target` must be a pointer to a slice of the according type.
 func All(
 	httpClient client.HTTPClient,
@@ -45,8 +45,8 @@ func getRest(
 	responses := []http.Response{}
 
 	cur := firstPageResponse
-	i := 0
-	for {
+
+	for i := 0; ; {
 		if i+1 > limit {
 			return responses, nil
 		}
@@ -103,7 +103,7 @@ func unmarshalResponses(responses []http.Response, target interface{}) (err erro
 	}()
 
 	targetRefl := reflect.ValueOf(target).Elem()
-	tmp, err := createSliceWithType(target)
+	tmp, err := createSliceOfSameType(target)
 	if err != nil {
 		return err
 	}
@@ -137,7 +137,7 @@ func unmarshalResponse(res http.Response, target interface{}) error {
 	return json.Unmarshal(body, target)
 }
 
-func createSliceWithType(original interface{}) (interface{}, error) {
+func createSliceOfSameType(original interface{}) (interface{}, error) {
 	targetRefl := reflect.ValueOf(original)
 	resultSlice := reflect.New(targetRefl.Elem().Type())
 
