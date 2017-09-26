@@ -1,0 +1,6 @@
+builds:
+  - binary: pullkee
+    goos:
+      - windows
+      - darwin
+      - linux
