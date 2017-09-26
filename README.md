@@ -13,12 +13,6 @@
   </p>
 </p>
 
-
-
-<img src="https://maxcdn.icons8.com/Android_L/PNG/512/Programming/pull_request-512.png" width="200" alt="Pull request icon">
-
-godoc.org link: https://godoc.org/github.com/kirillrogovoy/pullkee
-
 ## Why?
 
 It's always been fun for me to browse pages like this: https://github.com/facebook/react/graphs/contributors.
