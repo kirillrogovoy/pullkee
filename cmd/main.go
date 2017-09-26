@@ -24,7 +24,8 @@ func Main() {
 	flags := getFlags()
 
 	client := getHTTPClient(getGithubCreds())
-	api := getAPI(&client, getRepo())
+	repo := getRepo()
+	api := getAPI(&client, repo)
 
 	// check that we can at least successfully fetch repository's meta information
 	if _, err := api.Repository(); err != nil {
@@ -33,7 +34,7 @@ func Main() {
 
 	printRateDetails(client)
 
-	cache := getCache()
+	cache := getCache(repo)
 	pulls := getPulls(flags, api, cache)
 
 	runMetrics(pulls)
@@ -55,9 +56,9 @@ func getAPI(client client.HTTPClient, repo string) github.APIv3 {
 	}
 }
 
-func getCache() cache.Cache {
+func getCache(repo string) cache.Cache {
 	return cache.FSCache{
-		CachePath: path.Join(os.TempDir(), "pullkee_cache"),
+		CachePath: path.Join(os.TempDir(), "pullkee_cache", repo),
 		FS:        RealFS{},
 	}
 }
