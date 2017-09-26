@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/kirillrogovoy/pullk/github/page"
+	"github.com/kirillrogovoy/pullkee/github/page"
 )
 
 // PullRequest is a representation of the Pull Request the Github API returns

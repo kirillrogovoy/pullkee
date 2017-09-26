@@ -3,7 +3,7 @@ package metric
 import (
 	"time"
 
-	"github.com/kirillrogovoy/pullk/github"
+	"github.com/kirillrogovoy/pullkee/github"
 )
 
 // CommentCharsPerDay contains the calculated data

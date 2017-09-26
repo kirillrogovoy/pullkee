@@ -2,7 +2,7 @@
 // different ways.
 package metric
 
-import "github.com/kirillrogovoy/pullk/github"
+import "github.com/kirillrogovoy/pullkee/github"
 
 // Metric is a common interface for every metric in metric/*.go
 type Metric interface {

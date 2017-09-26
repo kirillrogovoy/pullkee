@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-var cachePath = path.Join(os.TempDir(), "pullk_cache", "cache.json")
+var cachePath = path.Join(os.TempDir(), "pullkee_cache", "cache.json")
 
 // Cache is an interface for a Get/Set caching struct
 type Cache interface {

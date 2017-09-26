@@ -5,7 +5,7 @@ import (
 	"math"
 	"net/http"
 
-	"github.com/kirillrogovoy/pullk/github/page"
+	"github.com/kirillrogovoy/pullkee/github/page"
 )
 
 // Comment is a representation of a Github issue comment

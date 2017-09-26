@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	"github.com/kirillrogovoy/pullk/github"
+	"github.com/kirillrogovoy/pullkee/github"
 )
 
 // AssigneeMatrix contains the calculated data

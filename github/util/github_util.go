@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/kirillrogovoy/pullk/cache"
-	"github.com/kirillrogovoy/pullk/github"
+	"github.com/kirillrogovoy/pullkee/cache"
+	"github.com/kirillrogovoy/pullkee/github"
 )
 
 // Pulls fetches the list of pull requests directly from the API

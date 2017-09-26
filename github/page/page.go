@@ -11,7 +11,7 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/kirillrogovoy/pullk/github/client"
+	"github.com/kirillrogovoy/pullkee/github/client"
 )
 
 // All fetches multiple pages given only a request for the first one and unmarshals them into `target`.

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/kirillrogovoy/pullk/github"
+	"github.com/kirillrogovoy/pullkee/github"
 	"github.com/stretchr/testify/require"
 )
 

@@ -7,11 +7,11 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/kirillrogovoy/pullk/github/client"
+	"github.com/kirillrogovoy/pullkee/github/client"
 )
 
 const usage = `Usage:
-	pullkee [flags] [repo]
+	pullkeeee [flags] [repo]
 	repo - Github repository path as "username/reponame"
 
 	Flags:

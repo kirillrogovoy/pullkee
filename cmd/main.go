@@ -11,12 +11,12 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/kirillrogovoy/pullk/cache"
-	"github.com/kirillrogovoy/pullk/github"
-	"github.com/kirillrogovoy/pullk/github/client"
-	"github.com/kirillrogovoy/pullk/github/util"
-	"github.com/kirillrogovoy/pullk/metric"
-	"github.com/kirillrogovoy/pullk/progress"
+	"github.com/kirillrogovoy/pullkee/cache"
+	"github.com/kirillrogovoy/pullkee/github"
+	"github.com/kirillrogovoy/pullkee/github/client"
+	"github.com/kirillrogovoy/pullkee/github/util"
+	"github.com/kirillrogovoy/pullkee/metric"
+	"github.com/kirillrogovoy/pullkee/progress"
 )
 
 func main() {
@@ -56,7 +56,7 @@ func getAPI(client client.HTTPClient, repo string) github.APIv3 {
 
 func getCache() cache.Cache {
 	return cache.FSCache{
-		CachePath: path.Join(os.TempDir(), "pullk_cache"),
+		CachePath: path.Join(os.TempDir(), "pullkee_cache"),
 		FS:        RealFS{},
 	}
 }

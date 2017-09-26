@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	. "github.com/kirillrogovoy/pullk/github/page"
+	. "github.com/kirillrogovoy/pullkee/github/page"
 	"github.com/stretchr/testify/require"
 )
 

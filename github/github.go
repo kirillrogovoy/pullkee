@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/kirillrogovoy/pullk/github/client"
+	"github.com/kirillrogovoy/pullkee/github/client"
 )
 
 // API is an interface for a collection of methods to retrieve information from Github API

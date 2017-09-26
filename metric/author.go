@@ -1,6 +1,6 @@
 package metric
 
-import "github.com/kirillrogovoy/pullk/github"
+import "github.com/kirillrogovoy/pullkee/github"
 
 // Author contains the calculated data
 type Author struct {
