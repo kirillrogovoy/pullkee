@@ -1,4 +1,4 @@
-# pullkee [![Build Status](https://travis-ci.org/kirillrogovoy/pullkee.svg?branch=master)](https://travis-ci.org/kirillrogovoy/pullkee)
+# pullkee [![Build Status](https://travis-ci.org/kirillrogovoy/pullkee.svg?branch=master)](https://travis-ci.org/kirillrogovoy/pullkee) [![codecov](https://codecov.io/gh/kirillrogovoy/pullkee/branch/master/graph/badge.svg)](https://codecov.io/gh/kirillrogovoy/pullkee)
 
 A simple Pull Requests analyzer
 
