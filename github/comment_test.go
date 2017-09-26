@@ -58,10 +58,10 @@ func TestComments(t *testing.T) {
 		}
 
 		expected := []Comment{
-			Comment{User{"User1"}, "Body1"},
-			Comment{User{"User2"}, "Body2"},
-			Comment{User{"User3"}, "Body3"},
-			Comment{User{"User4"}, "Body4"},
+			{User{"User1"}, "Body1"},
+			{User{"User2"}, "Body2"},
+			{User{"User3"}, "Body3"},
+			{User{"User4"}, "Body4"},
 		}
 
 		comments, err := a.Comments(1)

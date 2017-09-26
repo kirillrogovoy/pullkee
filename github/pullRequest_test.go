@@ -194,7 +194,7 @@ func (a apiMock) Comments(number int) ([]Comment, error) {
 		return nil, a.commentsErr
 	}
 
-	return []Comment{Comment{Body: "Neat!"}}, nil
+	return []Comment{{Body: "Neat!"}}, nil
 }
 
 func (a apiMock) ReviewRequests(number int) ([]User, error) {
@@ -203,5 +203,5 @@ func (a apiMock) ReviewRequests(number int) ([]User, error) {
 		return nil, a.reviewRequestsErr
 	}
 
-	return []User{User{"User1"}}, nil
+	return []User{{"User1"}}, nil
 }

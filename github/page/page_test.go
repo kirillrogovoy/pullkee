@@ -42,9 +42,9 @@ func TestAll(t *testing.T) {
 		err := All(httpClientMock{response}, http.Request{}, actual, 99)
 
 		expected := &[]SomeStruct{
-			SomeStruct{"val0"},
-			SomeStruct{"val1"},
-			SomeStruct{"val2"},
+			{"val0"},
+			{"val1"},
+			{"val2"},
 		}
 
 		require.Nil(t, err)
@@ -82,8 +82,8 @@ func TestAll(t *testing.T) {
 		err := All(httpClientMock{response}, http.Request{}, actual, 2)
 
 		expected := &[]SomeStruct{
-			SomeStruct{"val0"},
-			SomeStruct{"val1"},
+			{"val0"},
+			{"val1"},
 		}
 
 		require.Nil(t, err)
@@ -168,7 +168,7 @@ func TestAll(t *testing.T) {
 		}}, *dummyRequest(), result, 99)
 
 		require.Nil(t, err)
-		require.Equal(t, []SomeStruct{SomeStruct{KeyX: "val1"}}, *result)
+		require.Equal(t, []SomeStruct{{KeyX: "val1"}}, *result)
 	})
 
 	t.Run("Stops fetching when couldn't parse the Link header", func(t *testing.T) {
@@ -183,7 +183,7 @@ func TestAll(t *testing.T) {
 		}}, *dummyRequest(), result, 99)
 
 		require.Nil(t, err)
-		require.Equal(t, []SomeStruct{SomeStruct{KeyX: "val1"}}, *result)
+		require.Equal(t, []SomeStruct{{KeyX: "val1"}}, *result)
 	})
 
 	t.Run("Fails when target is not a pointer", func(t *testing.T) {

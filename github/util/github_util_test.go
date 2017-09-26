@@ -8,11 +8,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-var pullsFromAPI = []github.PullRequest{github.PullRequest{
+var pullsFromAPI = []github.PullRequest{{
 	Body: "PR from API",
 }}
 
-var pullsFromCache = []github.PullRequest{github.PullRequest{
+var pullsFromCache = []github.PullRequest{{
 	Body: "PR from cache",
 }}
 
@@ -40,10 +40,10 @@ func TestPulls(t *testing.T) {
 func TestFillDetails(t *testing.T) {
 	t.Run("Works when the requests are successful", func(t *testing.T) {
 		prs := []github.PullRequest{
-			github.PullRequest{Number: 1},
-			github.PullRequest{Number: 2},
-			github.PullRequest{Number: 3},
-			github.PullRequest{Number: 4},
+			{Number: 1},
+			{Number: 2},
+			{Number: 3},
+			{Number: 4},
 		}
 
 		a := apiMock{}
@@ -72,7 +72,7 @@ func TestFillDetails(t *testing.T) {
 
 	t.Run("Works even when had a cache read error", func(t *testing.T) {
 		prs := []github.PullRequest{
-			github.PullRequest{Number: 1},
+			{Number: 1},
 		}
 
 		a := apiMock{}
@@ -96,7 +96,7 @@ func TestFillDetails(t *testing.T) {
 
 	t.Run("Works even when had a cache write error", func(t *testing.T) {
 		prs := []github.PullRequest{
-			github.PullRequest{Number: 1},
+			{Number: 1},
 		}
 
 		a := apiMock{}
@@ -120,7 +120,7 @@ func TestFillDetails(t *testing.T) {
 
 	t.Run("Fails when couldn't fetch details", func(t *testing.T) {
 		prs := []github.PullRequest{
-			github.PullRequest{Number: 1},
+			{Number: 1},
 		}
 
 		a := apiMock{
@@ -203,11 +203,11 @@ func (a apiMock) DiffSize(number int) (int, error) {
 }
 
 func (a apiMock) Comments(number int) ([]github.Comment, error) {
-	return []github.Comment{github.Comment{Body: "Neat!"}}, nil
+	return []github.Comment{{Body: "Neat!"}}, nil
 }
 
 func (a apiMock) ReviewRequests(number int) ([]github.User, error) {
-	return []github.User{github.User{
+	return []github.User{{
 		Login: "User1",
 	}}, nil
 }

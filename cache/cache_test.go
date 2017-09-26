@@ -75,7 +75,7 @@ func TestRead(t *testing.T) {
 		s := testStruct{}
 		m := mockFS{
 			cache: map[string]cacheEntity{
-				"/tmp/key1.json": cacheEntity{[]byte(`{"x":"val1"}`), 0777},
+				"/tmp/key1.json": {[]byte(`{"x":"val1"}`), 0777},
 			},
 		}
 		c := FSCache{
@@ -108,7 +108,7 @@ func TestRead(t *testing.T) {
 		s := testStruct{}
 		m := mockFS{
 			cache: map[string]cacheEntity{
-				"/tmp/key1.json": cacheEntity{[]byte(`incorrect JSON`), 0777},
+				"/tmp/key1.json": {[]byte(`incorrect JSON`), 0777},
 			},
 		}
 		c := FSCache{

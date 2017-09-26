@@ -24,7 +24,7 @@ func TestReviewRequest(t *testing.T) {
 
 		users, err := a.ReviewRequests(1)
 		require.Nil(t, err)
-		require.Equal(t, []User{User{"User1"}}, users)
+		require.Equal(t, []User{{"User1"}}, users)
 	})
 
 	t.Run("Fails when there is an error fetching the response", func(t *testing.T) {
