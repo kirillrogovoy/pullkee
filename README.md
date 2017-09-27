@@ -68,6 +68,8 @@ Strongly consider using the `--limit` parameter on big repos since
 you have a limited number of requests to make to the Github API. For me, it's currently 5000 per 1 hour.
 Also, always provide the `GITHUB_CREDS` env var, otherwise you only have 60 requests per 1 hour without it.
 
+Don't have a token yet? [Say no more](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/).
+
 That said, pullkee always uses a per-PR local cache in order to avoid
 repetitive requests for the data of the same pull request.
 
