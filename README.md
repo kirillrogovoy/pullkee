@@ -36,9 +36,11 @@ go get github.com/kirillrogovoy/pullkee
 ```
 and you are all set.
 
-Otherwise, just blame me for not pre-building the executables for you. ;)
-
-Then, install the [Golang environment](https://golang.org/doc/install).
+Otherwise, you can manually download the binary from the [Releases page](https://github.com/kirillrogovoy/pullkee/releases).
+In order to install it automatically, run:
+```
+curl https://raw.githubusercontent.com/kirillrogovoy/pullkee/master/godownloader.sh | bash
+```
 
 ## Usage
 
@@ -65,6 +67,8 @@ GITHUB_CREDS="your_name:your_key" pullkee --limit 500 facebook/react
 Strongly consider using the `--limit` parameter on big repos since
 you have a limited number of requests to make to the Github API. For me, it's currently 5000 per 1 hour.
 Also, always provide the `GITHUB_CREDS` env var, otherwise you only have 60 requests per 1 hour without it.
+
+Don't have a token yet? [Say no more](https://help.github.com/articles/creating-a-personal-access-token-for-the-command-line/).
 
 That said, pullkee always uses a per-PR local cache in order to avoid
 repetitive requests for the data of the same pull request.
