@@ -41,7 +41,7 @@ func Main() {
 }
 
 func getHTTPClient(creds *client.Credentials) client.Client {
-	rateLimiter := time.Tick(time.Millisecond * 75)
+	rateLimiter := time.Tick(time.Millisecond * 100)
 	return client.New(http.DefaultClient, client.Options{
 		Credentials: creds,
 		RateLimiter: &rateLimiter,
