@@ -37,7 +37,7 @@ go get github.com/kirillrogovoy/pullkee
 and you are all set.
 
 Otherwise, you can manually download the binary from the [Releases page](https://github.com/kirillrogovoy/pullkee/releases).
-In order to install is automatically, run:
+In order to install it automatically, run:
 ```
 curl https://raw.githubusercontent.com/kirillrogovoy/pullkee/master/godownloader.sh | bash
 ```
