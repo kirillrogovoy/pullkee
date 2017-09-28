@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path"
 	"strings"
+	"path/filepath"
 )
 
-var cachePath = path.Join(os.TempDir(), "pullkee_cache", "cache.json")
+var cachePath = filepath.Join(os.TempDir(), "pullkee_cache", "cache.json")
 
 // Cache is an interface for a Get/Set caching struct
 type Cache interface {
@@ -60,5 +60,5 @@ func (c FSCache) Get(key string, x interface{}) (bool, error) {
 }
 
 func (c FSCache) filePath(key string) string {
-	return path.Join(c.CachePath, fmt.Sprintf("%s.json", key))
+	return filepath.Join(c.CachePath, fmt.Sprintf("%s.json", key))
 }
