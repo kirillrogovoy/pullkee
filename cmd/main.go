@@ -6,7 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path"
+	"path/filepath"
 	"reflect"
 	"strconv"
 	"time"
@@ -58,7 +58,7 @@ func getAPI(client client.HTTPClient, repo string) github.APIv3 {
 
 func getCache(repo string) cache.Cache {
 	return cache.FSCache{
-		CachePath: path.Join(os.TempDir(), "pullkee_cache", repo),
+		CachePath: filepath.Join(os.TempDir(), "pullkee_cache", repo),
 		FS:        RealFS{},
 	}
 }
