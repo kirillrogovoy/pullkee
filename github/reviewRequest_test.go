@@ -16,7 +16,9 @@ func TestReviewRequest(t *testing.T) {
 			HTTPClient: httpClientMock{func() (*http.Response, error) {
 				return &http.Response{
 					StatusCode: 200,
-					Body:       ioutil.NopCloser(strings.NewReader(`[{"login": "User1"}]`)),
+					Body: ioutil.NopCloser(strings.NewReader(
+						`{"users": [{"login": "User1"}], "teams": []}`,
+					)),
 				}, nil
 			}},
 			RepoName: "someuser/somerepo",

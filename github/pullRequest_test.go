@@ -103,7 +103,7 @@ func TestFillDetails(t *testing.T) {
 		err := pr.FillDetails(apiMock{
 			diffSizeErr: fmt.Errorf("Weird error"),
 		})
-		require.EqualError(t, err, "Weird error")
+		require.EqualError(t, err, "diff size: Weird error")
 	})
 
 	t.Run("Fails when couldn't fetch the comments", func(t *testing.T) {
@@ -114,7 +114,7 @@ func TestFillDetails(t *testing.T) {
 		err := pr.FillDetails(apiMock{
 			commentsErr: fmt.Errorf("Weird error"),
 		})
-		require.EqualError(t, err, "Weird error")
+		require.EqualError(t, err, "comments: Weird error")
 	})
 
 	t.Run("Fails when couldn't fetch the review requests", func(t *testing.T) {
@@ -125,7 +125,7 @@ func TestFillDetails(t *testing.T) {
 		err := pr.FillDetails(apiMock{
 			reviewRequestsErr: fmt.Errorf("Weird error"),
 		})
-		require.EqualError(t, err, "Weird error")
+		require.EqualError(t, err, "review requests: Weird error")
 	})
 }
 

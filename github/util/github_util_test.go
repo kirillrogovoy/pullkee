@@ -138,7 +138,7 @@ func TestFillDetails(t *testing.T) {
 			}
 		}
 
-		require.EqualError(t, err, "Fetching error")
+		require.EqualError(t, err, "diff size: Fetching error")
 	})
 }
 
