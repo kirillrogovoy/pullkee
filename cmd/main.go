@@ -17,6 +17,7 @@ import (
 	"github.com/kirillrogovoy/pullkee/github/util"
 	"github.com/kirillrogovoy/pullkee/metric"
 	"github.com/kirillrogovoy/pullkee/progress"
+	"github.com/pkg/errors"
 )
 
 // Main is the entry function called by the "main" package
@@ -89,7 +90,7 @@ func getPulls(f flags, a github.API, c cache.Cache) []github.PullRequest {
 
 	for i := range pulls {
 		if err := <-ch; err != nil {
-			reportErrorAndExit(err)
+			reportErrorAndExit(errors.Wrap(err, "filling details for a pull request"))
 		}
 		bar.Set(float64(i+1) / float64(len(pulls)))
 	}

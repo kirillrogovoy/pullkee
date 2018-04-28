@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/kirillrogovoy/pullkee/github/page"
+	"github.com/pkg/errors"
 )
 
 // PullRequest is a representation of the Pull Request the Github API returns
@@ -34,7 +35,7 @@ func (p *PullRequest) FillDetails(a API) error {
 	if p.DiffSize == nil {
 		size, err := a.DiffSize(p.Number)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "diff size")
 		}
 		p.DiffSize = &size
 	}
@@ -42,7 +43,7 @@ func (p *PullRequest) FillDetails(a API) error {
 	if p.ReviewRequests == nil {
 		users, err := a.ReviewRequests(p.Number)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "review requests")
 		}
 		p.ReviewRequests = &users
 	}
@@ -50,7 +51,7 @@ func (p *PullRequest) FillDetails(a API) error {
 	if p.Comments == nil {
 		comments, err := a.Comments(p.Number)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "comments")
 		}
 		p.Comments = &comments
 	}

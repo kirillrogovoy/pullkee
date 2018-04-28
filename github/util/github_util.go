@@ -7,6 +7,7 @@ import (
 
 	"github.com/kirillrogovoy/pullkee/cache"
 	"github.com/kirillrogovoy/pullkee/github"
+	"github.com/pkg/errors"
 )
 
 // Pulls fetches the list of pull requests directly from the API
@@ -31,7 +32,7 @@ func FillDetails(
 			cacheKey := fmt.Sprintf("pr%d", p.Number)
 			found, err := c.Get(cacheKey, &p)
 			if err != nil {
-				reportFsError(err)
+				reportFsError(errors.Wrap(err, "getting cache"))
 			}
 
 			if !found {
@@ -44,7 +45,7 @@ func FillDetails(
 				// since p is a copy of i-th elem, we explicitly assign it to prs[i] to make the actual change
 				prs[i] = p
 				if err := c.Set(cacheKey, p); err != nil {
-					reportFsError(err)
+					reportFsError(errors.Wrap(err, "setting cache"))
 				}
 				ch <- nil
 			}
